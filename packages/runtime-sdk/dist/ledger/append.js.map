@@ -1,1 +1,0 @@
-{"version":3,"file":"append.js","sourceRoot":"","sources":["../../src/ledger/append.ts"],"names":[],"mappings":"AAEA,MAAM,OAAO,cAAc;IACR,OAAO,GAAkB,EAAE,CAAC;IAE7C,MAAM,CAAC,KAAkB;QACvB,IAAI,CAAC,OAAO,CAAC,IAAI,CAAC,MAAM,CAAC,MAAM,CAAC,KAAK,CAAC,CAAC,CAAC;IAC1C,CAAC;IAED,OAAO;QACL,OAAO,IAAI,CAAC,OAAO,CAAC;IACtB,CAAC;CACF"}
