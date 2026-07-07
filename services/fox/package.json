@@ -1,0 +1,22 @@
+{
+  "name": "@pinnacle/fox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "vitest": {
+    "include": [
+      "src/tests/**/*.test.ts"
+    ]
+  },
+  "dependencies": {
+    "@pinnacle/runtime-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.0"
+  }
+}
