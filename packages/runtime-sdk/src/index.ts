@@ -8,3 +8,5 @@ export * from "./identity/types.js";
 export * from "./governance/invariants.js";
 
 export * from "./ledger/index.js";
+
+export * from "./verification/index.js";
