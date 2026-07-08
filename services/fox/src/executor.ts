@@ -1,4 +1,9 @@
-import type { FoxRequest, FoxResponse } from "./types.js";
+import type {
+  FoxRequest,
+  FoxResponse
+} from "./types.js";
+
+import { getProvider } from "./providers/registry.js";
 
 export async function executeFox(
   request: FoxRequest
@@ -6,15 +11,19 @@ export async function executeFox(
 
   try {
 
-    const result = {
-      capability: request.capability,
-      processed: true,
-      input: request.input
-    };
+    const provider = getProvider();
+
+    const response = await provider.execute({
+      prompt: JSON.stringify(request.input)
+    });
 
     return {
       success: true,
-      output: result
+      output: {
+        provider: provider.name,
+        capability: request.capability,
+        response: response.text
+      }
     };
 
   } catch (error) {
@@ -25,4 +34,5 @@ export async function executeFox(
     };
 
   }
+
 }

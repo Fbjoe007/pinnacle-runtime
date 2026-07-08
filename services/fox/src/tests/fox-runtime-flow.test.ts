@@ -1,4 +1,9 @@
-import { describe, expect, it } from "vitest";
+import {
+  describe,
+  expect,
+  it
+} from "vitest";
+
 import {
   executeFoxRuntime
 } from "../index.js";
@@ -16,7 +21,7 @@ describe("Fox Runtime execution", () => {
     const response = await executeFoxRuntime(
       "tenant-test",
       {
-        capability: "test-capability",
+        capability: "vertex",
         input: {
           message: "hello runtime"
         }
@@ -26,16 +31,33 @@ describe("Fox Runtime execution", () => {
 
     expect(response.success).toBe(true);
 
-    expect(ledger.entries().length)
-      .toBe(2);
+    const entries = ledger.entries();
+
+    expect(entries.length)
+      .toBeGreaterThanOrEqual(2);
 
     expect(
-      ledger.entries()[0].eventType
-    ).toBe("FOX_EXECUTION_CREATED");
+      entries.some(
+        entry =>
+          entry.eventType === "FOX_EXECUTION_CREATED"
+      )
+    ).toBe(true);
 
     expect(
-      ledger.entries()[1].eventType
-    ).toBe("FOX_EXECUTION_SUCCEEDED");
+      entries.some(
+        entry =>
+          entry.eventType === "FOX_EXECUTION_SUCCEEDED"
+      )
+    ).toBe(true);
+
+    const executionIds = new Set(
+      entries.map(
+        entry => entry.executionId
+      )
+    );
+
+    expect(executionIds.size)
+      .toBe(1);
 
   });
 

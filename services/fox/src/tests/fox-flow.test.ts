@@ -6,7 +6,7 @@ describe("Fox execution", () => {
   it("executes a capability request", async () => {
 
     const response = await executeFox({
-      capability: "test-capability",
+      capability: "vertex",
       input: {
         message: "hello fox"
       }

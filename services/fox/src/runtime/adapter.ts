@@ -4,7 +4,10 @@ import {
 } from "@pinnacle/runtime-sdk";
 
 import { executeFox } from "../executor.js";
-import type { FoxRequest, FoxResponse } from "../types.js";
+import type {
+  FoxRequest,
+  FoxResponse
+} from "../types.js";
 
 export async function executeFoxRuntime(
   tenantId: string,
@@ -24,7 +27,35 @@ export async function executeFoxRuntime(
     }
   });
 
+  ledger.append({
+    id: crypto.randomUUID(),
+    executionId: execution.executionId,
+    eventType: "AI_PROVIDER_SELECTED",
+    timestamp: new Date(),
+    payload: {
+      provider: "vertex"
+    }
+  });
+
+  ledger.append({
+    id: crypto.randomUUID(),
+    executionId: execution.executionId,
+    eventType: "AI_REQUEST_STARTED",
+    timestamp: new Date(),
+    payload: {
+      capability: request.capability
+    }
+  });
+
   const result = await executeFox(request);
+
+  ledger.append({
+    id: crypto.randomUUID(),
+    executionId: execution.executionId,
+    eventType: "AI_RESPONSE_RECEIVED",
+    timestamp: new Date(),
+    payload: result
+  });
 
   ledger.append({
     id: crypto.randomUUID(),
