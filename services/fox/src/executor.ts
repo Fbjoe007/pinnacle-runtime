@@ -3,7 +3,13 @@ import type {
   FoxResponse
 } from "./types.js";
 
-import { getProvider } from "./providers/registry.js";
+import {
+  resolveCapability
+} from "./capabilities/registry.js";
+
+import {
+  getProvider
+} from "./providers/registry.js";
 
 export async function executeFox(
   request: FoxRequest
@@ -11,17 +17,28 @@ export async function executeFox(
 
   try {
 
-    const provider = getProvider();
+    const capability =
+      resolveCapability(
+        request.capability
+      );
 
-    const response = await provider.execute({
-      prompt: JSON.stringify(request.input)
-    });
+    const provider =
+      getProvider(
+        capability.provider
+      );
+
+    const response =
+      await provider.execute({
+        prompt: JSON.stringify(
+          request.input
+        )
+      });
 
     return {
       success: true,
       output: {
         provider: provider.name,
-        capability: request.capability,
+        capability: capability.name,
         response: response.text
       }
     };
