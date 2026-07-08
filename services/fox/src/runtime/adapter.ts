@@ -1,13 +1,16 @@
-import {
-  createExecution,
-  type Ledger
+import type {
+  Ledger
 } from "@pinnacle/runtime-sdk";
 
-import { executeFox } from "../executor.js";
+import {
+  executeCapability
+} from "../execution/runner.js";
+
 import type {
   FoxRequest,
   FoxResponse
 } from "../types.js";
+
 
 export async function executeFoxRuntime(
   tenantId: string,
@@ -15,57 +18,23 @@ export async function executeFoxRuntime(
   ledger: Ledger
 ): Promise<FoxResponse> {
 
-  const execution = createExecution(tenantId);
 
-  ledger.append({
-    id: crypto.randomUUID(),
-    executionId: execution.executionId,
-    eventType: "FOX_EXECUTION_CREATED",
-    timestamp: new Date(),
-    payload: {
-      capability: request.capability
-    }
-  });
+  const result =
+    await executeCapability(
+      tenantId,
 
-  ledger.append({
-    id: crypto.randomUUID(),
-    executionId: execution.executionId,
-    eventType: "AI_PROVIDER_SELECTED",
-    timestamp: new Date(),
-    payload: {
-      provider: "vertex"
-    }
-  });
+      {
+        capability:
+          request.capability,
 
-  ledger.append({
-    id: crypto.randomUUID(),
-    executionId: execution.executionId,
-    eventType: "AI_REQUEST_STARTED",
-    timestamp: new Date(),
-    payload: {
-      capability: request.capability
-    }
-  });
+        input:
+          request.input
+      },
 
-  const result = await executeFox(request);
+      ledger
+    );
 
-  ledger.append({
-    id: crypto.randomUUID(),
-    executionId: execution.executionId,
-    eventType: "AI_RESPONSE_RECEIVED",
-    timestamp: new Date(),
-    payload: result
-  });
-
-  ledger.append({
-    id: crypto.randomUUID(),
-    executionId: execution.executionId,
-    eventType: result.success
-      ? "FOX_EXECUTION_SUCCEEDED"
-      : "FOX_EXECUTION_FAILED",
-    timestamp: new Date(),
-    payload: result
-  });
 
   return result;
+
 }
