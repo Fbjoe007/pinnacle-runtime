@@ -1,7 +1,13 @@
-import type { AIProvider } from "./provider.js";
-import { vertexProvider } from "./vertex.js";
+import type {
+  AIProvider
+} from "./provider.js";
 
-export function getProvider(
+import {
+  vertexProvider
+} from "./vertex.js";
+
+
+export function resolveProvider(
   name = "vertex"
 ): AIProvider {
 

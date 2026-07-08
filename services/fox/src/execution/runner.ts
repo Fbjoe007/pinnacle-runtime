@@ -1,77 +1,93 @@
 import {
-  resolveCapability
-} from "../capabilities/registry.js";
-
-import {
-  getProvider
-} from "../providers/registry.js";
-
+  createExecution
+} from "@pinnacle/runtime-sdk";
 
 import type {
-  CapabilityExecutionContext,
-  CapabilityExecutionResult
-} from "./types.js";
+  Ledger
+} from "@pinnacle/runtime-sdk";
+
+import {
+  authorizeCapability
+} from "../policy/authorize.js";
+
+import {
+  executeFox
+} from "../executor.js";
+
+
+export interface CapabilityRequest {
+  capability: string;
+
+  input: unknown;
+}
+
+
+export interface CapabilityResponse {
+  success: boolean;
+
+  output?: unknown;
+
+  error?: string;
+}
 
 
 export async function executeCapability(
-  context: CapabilityExecutionContext,
-  input: unknown
-): Promise<CapabilityExecutionResult> {
+  tenantId: string,
+  request: CapabilityRequest,
+  ledger: Ledger
+): Promise<CapabilityResponse> {
 
 
-  try {
-
-    const capability =
-      resolveCapability(
-        context.capability
-      );
+  const execution =
+    createExecution(tenantId);
 
 
-    const provider =
-      getProvider(
-        capability.provider
-      );
+  ledger.append({
+    id: crypto.randomUUID(),
+    executionId: execution.executionId,
+    eventType: "FOX_EXECUTION_CREATED",
+    timestamp: new Date(),
+    payload: {
+      capability: request.capability
+    }
+  });
 
 
-    const response =
-      await provider.execute({
-        prompt: JSON.stringify(input)
-      });
+  authorizeCapability(
+    tenantId,
+    request.capability
+  );
 
 
-    return {
-
-      success: true,
-
-      capability:
-        capability.name,
-
-      provider:
-        provider.name,
-
-      output:
-        response.text
-
-    };
+  ledger.append({
+    id: crypto.randomUUID(),
+    executionId: execution.executionId,
+    eventType: "CAPABILITY_AUTHORIZATION_CHECKED",
+    timestamp: new Date(),
+    payload: {
+      tenantId,
+      capability: request.capability
+    }
+  });
 
 
-  } catch(error) {
+  const result =
+    await executeFox({
+      capability: request.capability,
+      input: request.input
+    });
 
 
-    return {
+  ledger.append({
+    id: crypto.randomUUID(),
+    executionId: execution.executionId,
+    eventType: result.success
+      ? "FOX_EXECUTION_SUCCEEDED"
+      : "FOX_EXECUTION_FAILED",
+    timestamp: new Date(),
+    payload: result
+  });
 
-      success:false,
 
-      capability:
-        context.capability,
-
-      provider:"unknown",
-
-      error:
-        String(error)
-
-    };
-
-  }
-
+  return result;
 }

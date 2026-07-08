@@ -1,24 +1,17 @@
-export interface CapabilityExecutionContext {
+import type { Ledger } from "@pinnacle/runtime-sdk";
 
-  tenantId: string;
-
-  executionId: string;
-
+export interface FoxRequest {
   capability: string;
-
+  payload: unknown;
 }
 
-
-export interface CapabilityExecutionResult {
-
+export interface FoxResponse {
   success: boolean;
-
-  capability: string;
-
-  provider: string;
-
   output?: unknown;
-
   error?: string;
+}
 
+export interface CapabilityExecutionContext {
+  ledger?: Ledger;
+  tenantId?: string;
 }

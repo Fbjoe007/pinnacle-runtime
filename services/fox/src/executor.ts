@@ -3,66 +3,73 @@ import type {
   FoxResponse
 } from "./types.js";
 
+import {
+  resolveCapability
+} from "./capabilities/registry.js";
 
 import {
-  executeCapability
-} from "./execution/runner.js";
+  resolveProvider
+} from "./providers/registry.js";
 
 
 export async function executeFox(
   request: FoxRequest
 ): Promise<FoxResponse> {
 
+  try {
 
-  const result =
-    await executeCapability(
-      {
-        tenantId:"default",
-
-        executionId:
-          crypto.randomUUID(),
-
-        capability:
-          request.capability
-
-      },
-
-      request.input
-
-    );
+    const capability =
+      resolveCapability(
+        request.capability
+      );
 
 
-  if(!result.success){
+    const provider =
+      resolveProvider(
+        capability.provider
+      );
+
+
+    const response =
+      await provider.execute({
+        prompt:
+          String(request.input)
+      });
+
 
     return {
 
-      success:false,
+      success: true,
+
+      output: {
+
+        provider:
+          capability.provider,
+
+        capability:
+          request.capability,
+
+        response:
+          response.text
+
+      }
+
+    };
+
+
+  } catch (error) {
+
+    return {
+
+      success: false,
 
       error:
-        result.error
+        error instanceof Error
+          ? error.message
+          : "Unknown error"
 
     };
 
   }
-
-
-  return {
-
-    success:true,
-
-    output:{
-
-      capability:
-        result.capability,
-
-      provider:
-        result.provider,
-
-      response:
-        result.output
-
-    }
-
-  };
 
 }
