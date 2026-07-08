@@ -57,3 +57,15 @@ export function resolveCapability(
   return definition;
 
 }
+
+
+export function listCapabilities(): CapabilityDefinition[] {
+
+  return Object.values(
+    capabilities
+  ).filter(
+    capability =>
+      capability.enabled
+  );
+
+}
