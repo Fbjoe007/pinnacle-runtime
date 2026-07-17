@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Fingerprint, Copy, Check, ShieldCheck } from 'lucide-react';
 
 interface Props {
   merkleRoot: string;
@@ -11,27 +12,53 @@ export const LedgerSeal: React.FC<Props> = ({ merkleRoot, signature }) => {
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const trunc = (h: string) => h ? `${h.slice(0, 12)}...${h.slice(-8)}` : 'N/A';
+  const trunc = (h: string) => `${h.slice(0, 16)}...${h.slice(-12)}`;
 
   return (
-    <div className="border border-[#27272A] bg-[#121214] p-4 font-mono text-xs text-[#D4D4D8] rounded-sm">
-      <div className="flex justify-between items-center mb-3">
-        <span className="text-[#00FF41] font-bold tracking-widest text-[10px]">[!] CRYPTOGRAPHIC LEDGER SEAL</span>
-        <span className="text-[10px] bg-[#00FF41]/10 text-[#00FF41] px-2 py-0.5 border border-[#00FF41]/20 rounded-sm">
-          VERIFIED_RECORD
-        </span>
+    <div className="bg-[#0B1F3A] rounded-2xl p-8 border border-[#D4AF37]/30 shadow-2xl overflow-hidden relative group">
+      <div className="absolute top-0 right-0 p-8 opacity-5">
+        <ShieldCheck className="w-32 h-32 text-[#D4AF37]" />
       </div>
-      <div className="space-y-2">
-        <div className="flex justify-between cursor-pointer" onClick={() => handleCopy(merkleRoot)}>
-          <span className="text-[#A1A1AA]">MERKLE_ROOT:</span>
-          <span className="text-[#0066FF] hover:underline">{copied ? 'COPIED' : trunc(merkleRoot)}</span>
+
+      <div className="relative z-10">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-[#D4AF37] p-2 rounded-lg text-[#0B1F3A]">
+            <Fingerprint className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-sm tracking-tight uppercase">Ledger Proof of Authenticity</h3>
+            <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em]">Immutable Forensic Record</p>
+          </div>
         </div>
-        <div className="flex justify-between">
-          <span className="text-[#A1A1AA]">SIGNATURE:</span>
-          <span>{trunc(signature)}</span>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Merkle Root</label>
+            <button 
+              onClick={() => handleCopy(merkleRoot)}
+              className="w-full flex items-center justify-between bg-black/20 hover:bg-black/40 border border-white/10 p-3 rounded-xl transition-all group/item"
+            >
+              <span className="font-mono text-[11px] text-blue-300 truncate mr-4">{merkleRoot ? trunc(merkleRoot) : "Evidence Unavailable"}</span>
+              {copied ? <Check className="w-4 h-4 text-[#10B981]" /> : <Copy className="w-4 h-4 text-slate-500 group-hover/item:text-[#D4AF37]" />}
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authority Signature</label>
+            <div className="bg-black/20 border border-white/10 p-3 rounded-xl">
+              <span className="font-mono text-[11px] text-slate-300 truncate block">{signature ? trunc(signature) : "Evidence Unavailable"}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-white/5">
+          <p className="text-[9px] text-slate-500 leading-relaxed italic">
+            This cryptographic seal confirms that the associated validation outcome has been committed to the 
+            Pinnacle Runtime Ledger and cannot be altered or repudiated.
+          </p>
         </div>
       </div>
     </div>
