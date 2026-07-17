@@ -1,4 +1,3 @@
-
 # Node
 node_modules/
 
@@ -9,4 +8,15 @@ dist/
 .env
 .env.*
 
-node_modules/
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Runtime logs
+*.log
+
+# Temporary terminal artifacts
+=
+CACHED
+ERROR
+tsc
+transferring

@@ -2,6 +2,9 @@ export type ExecutionId = string;
 
 export type ExecutionState =
   | "CREATED"
+  | "REQUESTED"
+  | "AUTHORIZED"
+  | "DISPATCHED"
   | "RUNNING"
   | "SUCCEEDED"
   | "FAILED"

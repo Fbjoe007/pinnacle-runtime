@@ -8,10 +8,13 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@pinnacle/fox": "workspace:*",
     "@pinnacle/runtime-sdk": "workspace:*",
-    "@pinnacle/fox": "workspace:*"
+    "fastify": "^5.10.0",
+    "@pinnacle/validator-sdk": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "typescript": "^5.0.0",
     "vitest": "^4.0.0"
   }

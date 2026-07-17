@@ -1,9 +1,10 @@
-export interface RuntimeExecution {
+import type {
+  Execution
+} from "@pinnacle/runtime-sdk";
 
-  executionId: string;
+export interface RuntimeExecution
+  extends Execution {
 
   capability: string;
-
-  createdAt: Date;
 
 }

@@ -1,0 +1,54 @@
+# --- Base Stage for Tooling ---
+FROM node:20-alpine AS base
+RUN npm i -g pnpm
+WORKDIR /app
+
+# --- Dependencies Stage ---
+FROM base AS dependencies
+# Copy root configuration manifest files AND the global tsconfig base file
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.base.json ./
+
+# Copy all internal package and service manifests for caching
+COPY services/runtime/package.json ./services/runtime/
+COPY services/fox/package.json ./services/fox/
+COPY packages/runtime-sdk/package.json ./packages/runtime-sdk/
+COPY packages/validator-sdk/package.json ./packages/validator-sdk/
+
+# Install all workspace dependencies
+RUN pnpm install --frozen-lockfile
+
+# --- Build Stage ---
+FROM dependencies AS builder
+# Copy the full source code for the packages and services
+COPY services/runtime ./services/runtime
+COPY services/fox ./services/fox
+COPY packages/runtime-sdk ./packages/runtime-sdk
+COPY packages/validator-sdk ./packages/validator-sdk
+
+# Compile the target workspace app
+RUN pnpm --filter @pinnacle/runtime build
+
+# Prune dependencies to lean production allocations
+RUN pnpm install --prod --frozen-lockfile
+
+# --- Production Runner ---
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Bring over production node_modules map
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# Bring over built services and package spaces
+COPY --from=builder /app/services/runtime ./services/runtime
+COPY --from=builder /app/services/fox ./services/fox
+COPY --from=builder /app/packages/runtime-sdk ./packages/runtime-sdk
+COPY --from=builder /app/packages/validator-sdk ./packages/validator-sdk
+
+# Move into runtime workspace context where dist/ui resides
+WORKDIR /app/services/runtime
+EXPOSE 8080
+
+CMD ["node", "dist/main.js"]

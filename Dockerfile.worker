@@ -1,0 +1,22 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY pnpm-lock.yaml package.json ./
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm --filter @pinnacle/runtime build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=8080
+
+COPY package.json pnpm-lock.yaml ./
+RUN apk add --no-cache jq && \
+    jq '. + {type: "module"}' package.json > package.json.tmp && mv package.json.tmp package.json && \
+    npm install --omit=dev
+
+COPY --from=builder /app/services/runtime/dist ./dist
+
+EXPOSE 8080
+
+CMD ["node", "dist/worker.js"]

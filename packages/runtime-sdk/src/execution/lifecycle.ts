@@ -1,19 +1,10 @@
 import type { ExecutionState } from "./types.js";
-
-const allowedTransitions: Record<
-  ExecutionState,
-  ExecutionState[]
-> = {
-  CREATED: ["RUNNING", "CANCELLED"],
-  RUNNING: ["SUCCEEDED", "FAILED", "CANCELLED"],
-  SUCCEEDED: [],
-  FAILED: [],
-  CANCELLED: []
-};
+import { allowedTransitions } from "./transitions.js";
 
 export function canTransition(
   from: ExecutionState,
   to: ExecutionState
 ): boolean {
-  return allowedTransitions[from].includes(to);
+  const allowed = allowedTransitions[from];
+  return allowed ? allowed.includes(to) : false;
 }
