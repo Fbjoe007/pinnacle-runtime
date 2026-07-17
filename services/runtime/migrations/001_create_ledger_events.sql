@@ -1,5 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS ledger_events (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     execution_id VARCHAR(255) NOT NULL,
     event_type VARCHAR(255) NOT NULL,
     authority_type VARCHAR(50) NOT NULL,
@@ -16,6 +18,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS enforce_ledger_immutability ON ledger_events;
+
 CREATE TRIGGER enforce_ledger_immutability
 BEFORE UPDATE OR DELETE ON ledger_events
 FOR EACH ROW
